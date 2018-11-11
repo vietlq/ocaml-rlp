@@ -1,0 +1,12 @@
+_build/*
+*.cmo
+*.cmi
+*.cma
+*.a
+*.so
+*.dylib
+*.cmxo
+*.cmxa
+*.exe
+.merlin
+dune-project
