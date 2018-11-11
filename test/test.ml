@@ -25,6 +25,20 @@ let rlp_encode_char_255 _ =
   Bytes.set bytes 1 '\xff';
   assert_equal (Rlp.encode_char '\xff') bytes
 
+let rlp_encode_char_0_127 _ =
+  let bytes = Bytes.make 128 '\x00' in
+  Bytes.iteri (fun idx _ -> Bytes.set bytes idx @@ char_of_int idx) bytes;
+  Bytes.iter (fun c -> assert_equal (Rlp.encode_char c) (Bytes.make 1 c)) bytes
+
+let rlp_encode_char_128_255 _ =
+  let bytes = Bytes.make 128 '\x80' in
+  Bytes.iteri (fun idx _ ->
+    Bytes.set bytes idx @@ char_of_int (128 + idx)) bytes;
+  Bytes.iter (fun c ->
+    let two_chars = Bytes.make 2 '\x81' in
+    Bytes.set two_chars 1 c;
+    assert_equal (Rlp.encode_char c) two_chars) bytes
+
 let suite =
   "Rlp" >::: [
     "rlp_encode_char_0" >:: rlp_encode_char_0;
@@ -33,6 +47,8 @@ let suite =
     "rlp_encode_char_128" >:: rlp_encode_char_128;
     "rlp_encode_char_129" >:: rlp_encode_char_129;
     "rlp_encode_char_255" >:: rlp_encode_char_255;
+    "rlp_encode_char_0_127" >:: rlp_encode_char_0_127;
+    "rlp_encode_char_128_255" >:: rlp_encode_char_128_255;
   ]
 
 let _ = run_test_tt_main suite
