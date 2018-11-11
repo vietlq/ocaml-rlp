@@ -9,7 +9,7 @@ help:
 	@echo "main        Build & run the main tool"
 	@echo "utop        Build the library & launch utop"
 
-all: clean build test
+all: clean lib test
 
 clean:
 	dune clean
