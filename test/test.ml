@@ -43,14 +43,26 @@ let rlp_encode_char_128_255 _ =
 
 (* Test string encoding *)
 
-let rlp_encode_empty_string _ =
-  assert_equal (Rlp.encode_string "") Rlp.encode_non_value
+let test_cases_string = [
+  ("", "\x80");
+  ("a", "a");
+  ("\x7f", "\x7f");
+  ("\x80", "\x81\x80");
+  ("\xff", "\x81\xff");
+  ("hello", "\x85hello");
+  ("hello world", "\x8bhello world");
+  ("a", "b");
+]
 
-let rlp_encode_single_char_string_a _ =
-  assert_equal (Rlp.encode_string "a") (Bytes.of_string "a")
-
-let rlp_encode_single_char_string_ff _ =
-  assert_equal (Rlp.encode_string "\xff") (Bytes.of_string "\x81\xff")
+let rlp_encode_string_basic_cases _ =
+  List.iter
+    (fun (input, expected) ->
+       assert_equal
+         ~msg:"Bad Rlp.encode_string"
+         ~printer:Bytes.to_string
+         (Bytes.of_string expected)
+         (Rlp.encode_string input))
+    test_cases_string
 
 let suite =
   "Rlp" >::: [
@@ -64,9 +76,7 @@ let suite =
     "rlp_encode_char_0_127" >:: rlp_encode_char_0_127;
     "rlp_encode_char_128_255" >:: rlp_encode_char_128_255;
     (* string encoding *)
-    "rlp_encode_empty_string" >:: rlp_encode_empty_string;
-    "rlp_encode_single_char_string_a" >:: rlp_encode_single_char_string_a;
-    "rlp_encode_single_char_string_ff" >:: rlp_encode_single_char_string_ff;
+    "rlp_encode_string_basic_cases" >:: rlp_encode_string_basic_cases;
   ]
 
 let _ = run_test_tt_main suite
