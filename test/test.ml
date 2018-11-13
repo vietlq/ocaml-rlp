@@ -1,6 +1,8 @@
 open OUnit
 module Rlp = Rlp.Rlp
 
+(* Test char encoding *)
+
 let rlp_encode_char_0 _ =
   assert_equal (Rlp.encode_char '\x00') (Bytes.make 1 '\x00')
 
@@ -39,8 +41,20 @@ let rlp_encode_char_128_255 _ =
     Bytes.set two_chars 1 c;
     assert_equal (Rlp.encode_char c) two_chars) bytes
 
+(* Test string encoding *)
+
+let rlp_encode_empty_string _ =
+  assert_equal (Rlp.encode_string "") Rlp.encode_non_value
+
+let rlp_encode_single_char_string_a _ =
+  assert_equal (Rlp.encode_string "a") (Bytes.of_string "a")
+
+let rlp_encode_single_char_string_ff _ =
+  assert_equal (Rlp.encode_string "\xff") (Bytes.of_string "\x81\xff")
+
 let suite =
   "Rlp" >::: [
+    (* char encoding *)
     "rlp_encode_char_0" >:: rlp_encode_char_0;
     "rlp_encode_char_1" >:: rlp_encode_char_1;
     "rlp_encode_char_127" >:: rlp_encode_char_127;
@@ -49,6 +63,10 @@ let suite =
     "rlp_encode_char_255" >:: rlp_encode_char_255;
     "rlp_encode_char_0_127" >:: rlp_encode_char_0_127;
     "rlp_encode_char_128_255" >:: rlp_encode_char_128_255;
+    (* string encoding *)
+    "rlp_encode_empty_string" >:: rlp_encode_empty_string;
+    "rlp_encode_single_char_string_a" >:: rlp_encode_single_char_string_a;
+    "rlp_encode_single_char_string_ff" >:: rlp_encode_single_char_string_ff;
   ]
 
 let _ = run_test_tt_main suite
