@@ -57,8 +57,11 @@ let test_cases_string = [
 let rlp_encode_string_basic_cases _ =
   List.iter
     (fun (input, expected) ->
+       let emsg = Printf.sprintf
+         "Bad Rlp.encode_string.\nInput: %s"
+         input in
        assert_equal
-         ~msg:"Bad Rlp.encode_string"
+         ~msg:emsg
          ~printer:Bytes.to_string
          (Bytes.of_string expected)
          (Rlp.encode_string input))
