@@ -51,7 +51,6 @@ let test_cases_string = [
   ("\xff", "\x81\xff");
   ("hello", "\x85hello");
   ("hello world", "\x8bhello world");
-  ("a", "b");
 ]
 
 let rlp_encode_string_basic_cases _ =
