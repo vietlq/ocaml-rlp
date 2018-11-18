@@ -18,7 +18,7 @@ let encode_char (c : char) =
 
 let big_endian_bytes_of_uint num =
   let rec aux total_bytes list_bytes n =
-    if n < 0 then failwith "Must be positive!"
+    if n < 0 then failwith "Must be non-negative!"
     else if n = 0 then (total_bytes, list_bytes)
     else begin
       aux (total_bytes + 1) (char_of_int (n mod 256) :: list_bytes) (n / 256)
