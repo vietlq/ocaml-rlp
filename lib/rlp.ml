@@ -102,4 +102,35 @@ and join_list_bytes buffer list_bytes =
     let payload_len_bytes_len = Bytes.length payload_len_bytes in
     let prefix = Bytes.make 1 (char_of_int (0xf7 + payload_len_bytes_len)) in
     Bytes.cat (Bytes.cat prefix payload_len_bytes) @@ Buffer.to_bytes buffer
+
+let decode_short_string len_prefix bytes_left inbytes =
+  let len = (int_of_char len_prefix) - 128 in
+  if len + 1 != bytes_left then failwith "Invalid number of bytes left!"
+  else Some (RlpData (Bytes.sub_string inbytes ((Bytes.length inbytes) - bytes_left + 1) len))
+
+let decode_long_string = Some (RlpData "")
+
+let decode_short_array = Some (RlpList [])
+
+let decode_long_array = Some (RlpList [])
+
+let decode (inbytes: bytes) : t option =
+  let orig_len = Bytes.length inbytes in
+  let aux bytes_left acc =
+    if bytes_left < 0 then failwith "Must not be negative length!"
+    else if bytes_left = 0 then acc
+    else begin
+      let idx = orig_len - bytes_left in
+      match Bytes.get inbytes idx with
+      | '\x00'..'\x7f' as c -> Some (RlpData (Bytes.to_string (Bytes.make 1 c)))
+      | '\x80' -> Some (RlpData "")
+      | '\x81'..'\xb7' as len_prefix ->
+        decode_short_string len_prefix bytes_left inbytes
+      | '\xb8'..'\xbf' -> decode_long_string
+      | '\xc0' -> Some (RlpList [])
+      | '\xc1'..'\xf7' -> decode_short_array
+      | '\xf8'..'\xff' -> decode_long_array
+    end
+  in aux orig_len None
+
 end

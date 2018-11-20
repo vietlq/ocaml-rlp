@@ -66,6 +66,21 @@ let rlp_encode_string_basic_cases _ =
          (Rlp.encode_string input))
     test_cases_string
 
+let rlp_decode_string_basic_cases _ =
+  List.iter
+    (fun (expected, input) ->
+       let emsg = Printf.sprintf
+         "Bad Rlp.decode.\nInput: %s"
+         input in
+       assert_equal
+         ~msg:emsg
+         ~printer:(fun x -> match x with
+          | (Some (Rlp.RlpData s)) -> s
+          | _ -> failwith "Impossible!")
+         (Some (Rlp.RlpData expected))
+         (Rlp.decode (Bytes.of_string input)))
+    test_cases_string
+
 let suite =
   "Rlp" >::: [
     (* char encoding *)
@@ -79,6 +94,8 @@ let suite =
     "rlp_encode_char_128_255" >:: rlp_encode_char_128_255;
     (* string encoding *)
     "rlp_encode_string_basic_cases" >:: rlp_encode_string_basic_cases;
+    (* string decoding *)
+    "rlp_decode_string_basic_cases" >:: rlp_decode_string_basic_cases;
   ]
 
 let _ = run_test_tt_main suite
