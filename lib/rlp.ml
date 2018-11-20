@@ -115,14 +115,23 @@ let decode_small_int_string (s : string) : int =
   decode_small_int (Bytes.of_string s)
 
 let decode_short_string len_prefix bytes_left inbytes =
-  let len = (int_of_char len_prefix) - 128 in
+  let len = (int_of_char len_prefix) - 0x80 in
   if len + 1 != bytes_left then failwith "Invalid number of bytes left!"
-  else Some (RlpData (Bytes.sub_string inbytes ((Bytes.length inbytes) - bytes_left + 1) len))
+  else begin
+    let str_idx = ((Bytes.length inbytes) - bytes_left + 1)in
+    Some (RlpData (Bytes.sub_string inbytes str_idx len))
+  end
 
 let decode_long_string len_prefix bytes_left inbytes =
-  let len = (int_of_char len_prefix) - 128 in
+  let len = (int_of_char len_prefix) - 0xb7 in
   if len + 1 >= bytes_left then failwith "Invalid number of bytes left!"
-  else Some (RlpData (Bytes.sub_string inbytes ((Bytes.length inbytes) - bytes_left + 1) len))
+  else begin
+    let bytes_of_int =
+      (Bytes.sub inbytes ((Bytes.length inbytes) - bytes_left + 1) len) in
+    let str_len = decode_small_int bytes_of_int in
+    let str_idx = ((Bytes.length inbytes) - bytes_left + len + 1) in
+    Some (RlpData (Bytes.sub_string inbytes str_idx str_len))
+  end
 
 let decode_short_array = Some (RlpList [])
 
@@ -136,7 +145,8 @@ let decode (inbytes: bytes) : t option =
     else begin
       let idx = orig_len - bytes_left in
       match Bytes.get inbytes idx with
-      | '\x00'..'\x7f' as c -> Some (RlpData (Bytes.to_string (Bytes.make 1 c)))
+      | '\x00'..'\x7f' as c ->
+        Some (RlpData (Bytes.to_string (Bytes.make 1 c)))
       | '\x80' -> Some (RlpData "")
       | '\x81'..'\xb7' as len_prefix ->
         decode_short_string len_prefix bytes_left inbytes
