@@ -119,7 +119,10 @@ let decode_short_string len_prefix bytes_left inbytes =
   if len + 1 != bytes_left then failwith "Invalid number of bytes left!"
   else Some (RlpData (Bytes.sub_string inbytes ((Bytes.length inbytes) - bytes_left + 1) len))
 
-let decode_long_string = Some (RlpData "")
+let decode_long_string len_prefix bytes_left inbytes =
+  let len = (int_of_char len_prefix) - 128 in
+  if len + 1 >= bytes_left then failwith "Invalid number of bytes left!"
+  else Some (RlpData (Bytes.sub_string inbytes ((Bytes.length inbytes) - bytes_left + 1) len))
 
 let decode_short_array = Some (RlpList [])
 
@@ -137,7 +140,8 @@ let decode (inbytes: bytes) : t option =
       | '\x80' -> Some (RlpData "")
       | '\x81'..'\xb7' as len_prefix ->
         decode_short_string len_prefix bytes_left inbytes
-      | '\xb8'..'\xbf' -> decode_long_string
+      | '\xb8'..'\xbf' as len_prefix ->
+        decode_long_string len_prefix bytes_left inbytes
       | '\xc0' -> Some (RlpList [])
       | '\xc1'..'\xf7' -> decode_short_array
       | '\xf8'..'\xff' -> decode_long_array

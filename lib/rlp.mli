@@ -16,7 +16,7 @@ module Rlp :
     val decode_small_int : bytes -> int
     val decode_small_int_string : string -> int
     val decode_short_string : char -> int -> bytes -> t option
-    val decode_long_string : t option
+    val decode_long_string : char -> int -> bytes -> t option
     val decode_short_array : t option
     val decode_long_array : t option
     val decode : bytes -> t option
