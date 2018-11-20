@@ -118,6 +118,30 @@ let rlp_decode_string_basic_cases _ =
          (Rlp.decode (Bytes.of_string input)))
     test_cases_string
 
+let test_cases_int = [
+  ("", 0);
+  ("a", int_of_char 'a');
+  ("\x7f", 127);
+  ("\x80", 128);
+  ("\xff", 255);
+  ("\x01\x00", 256);
+  ("\x01\x00\x00", 65536);
+  ("\x01\x00\x01", 65537);
+]
+
+let rlp_decode_int_basic_cases _ =
+  List.iter
+    (fun (input, expected) ->
+       let emsg = Printf.sprintf
+         "Bad Rlp.decode_small_int_string.\nInput: %s"
+         input in
+       assert_equal
+         ~msg:emsg
+         ~printer:(string_of_int)
+         (expected)
+         (Rlp.decode_small_int_string input))
+    test_cases_int
+
 let suite =
   "Rlp" >::: [
     (* char encoding *)
@@ -133,6 +157,8 @@ let suite =
     "rlp_encode_string_basic_cases" >:: rlp_encode_string_basic_cases;
     (* string decoding *)
     "rlp_decode_string_basic_cases" >:: rlp_decode_string_basic_cases;
+    (* int decoding *)
+    "rlp_decode_int_basic_cases" >:: rlp_decode_int_basic_cases;
   ]
 
 let _ = run_test_tt_main suite

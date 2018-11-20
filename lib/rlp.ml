@@ -103,6 +103,17 @@ and join_list_bytes buffer list_bytes =
     let prefix = Bytes.make 1 (char_of_int (0xf7 + payload_len_bytes_len)) in
     Bytes.cat (Bytes.cat prefix payload_len_bytes) @@ Buffer.to_bytes buffer
 
+let decode_small_int (inbytes : bytes) : int =
+  if Bytes.length inbytes > 8 then failwith "Max size for small int: 64 bits"
+  else begin
+    let out_int = ref 0 in
+    Bytes.iter (fun c -> out_int := 256*(!out_int) + int_of_char(c)) inbytes;
+    !out_int
+  end
+
+let decode_small_int_string (s : string) : int =
+  decode_small_int (Bytes.of_string s)
+
 let decode_short_string len_prefix bytes_left inbytes =
   let len = (int_of_char len_prefix) - 128 in
   if len + 1 != bytes_left then failwith "Invalid number of bytes left!"

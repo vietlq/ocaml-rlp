@@ -13,6 +13,8 @@ module Rlp :
     val encode_list : t list -> bytes
     val encode_list_aux : t list -> int -> bytes list -> int * bytes list
     val join_list_bytes : Buffer.t -> bytes list -> bytes
+    val decode_small_int : bytes -> int
+    val decode_small_int_string : string -> int
     val decode_short_string : char -> int -> bytes -> t option
     val decode_long_string : t option
     val decode_short_array : t option
