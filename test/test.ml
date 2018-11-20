@@ -129,6 +129,19 @@ let test_cases_int = [
   ("\x01\x00\x01", 65537);
 ]
 
+let rlp_encode_int_basic_cases _ =
+  List.iter
+    (fun (expected, input) ->
+       let emsg = Printf.sprintf
+         "Bad Rlp.big_endian_bytes_of_uint.\nInput: %d"
+         input in
+       assert_equal
+         ~msg:emsg
+         ~printer:(Bytes.to_string)
+         (Bytes.of_string expected)
+         (Rlp.big_endian_bytes_of_uint input))
+    test_cases_int
+
 let rlp_decode_int_basic_cases _ =
   List.iter
     (fun (input, expected) ->
@@ -157,6 +170,8 @@ let suite =
     "rlp_encode_string_basic_cases" >:: rlp_encode_string_basic_cases;
     (* string decoding *)
     "rlp_decode_string_basic_cases" >:: rlp_decode_string_basic_cases;
+    (* int encoding *)
+    "rlp_encode_int_basic_cases" >:: rlp_encode_int_basic_cases;
     (* int decoding *)
     "rlp_decode_int_basic_cases" >:: rlp_decode_int_basic_cases;
   ]
