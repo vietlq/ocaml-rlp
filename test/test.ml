@@ -43,6 +43,33 @@ let rlp_encode_char_128_255 _ =
 
 (* Test string encoding *)
 
+let str_56_a = Bytes.make 56 'a'
+let str_56_a_rlp =
+  let prefix = Bytes.make 2 '\xb8' in
+  Bytes.set prefix 1 (char_of_int 56);
+  Bytes.cat prefix str_56_a
+
+let str_255_a = Bytes.make 255 'a'
+let str_255_a_rlp =
+  let prefix = Bytes.make 2 '\xb8' in
+  Bytes.set prefix 1 (char_of_int 255);
+  Bytes.cat prefix str_255_a
+
+let str_256_a = Bytes.make 256 'a'
+let str_256_a_rlp =
+  let prefix = Bytes.make 3 '\xb9' in
+  Bytes.set prefix 1 (char_of_int 1);
+  Bytes.set prefix 2 (char_of_int 0);
+  Bytes.cat prefix str_256_a
+
+let str_65536_a = Bytes.make 65536 'a'
+let str_65536_a_rlp =
+  let prefix = Bytes.make 4 '\xba' in
+  Bytes.set prefix 1 (char_of_int 1);
+  Bytes.set prefix 2 (char_of_int 0);
+  Bytes.set prefix 3 (char_of_int 0);
+  Bytes.cat prefix str_65536_a
+
 let test_cases_string = [
   ("", "\x80");
   ("a", "a");
@@ -51,6 +78,10 @@ let test_cases_string = [
   ("\xff", "\x81\xff");
   ("hello", "\x85hello");
   ("hello world", "\x8bhello world");
+  (Bytes.to_string str_56_a, Bytes.to_string str_56_a_rlp);
+  (Bytes.to_string str_255_a, Bytes.to_string str_255_a_rlp);
+  (Bytes.to_string str_256_a, Bytes.to_string str_256_a_rlp);
+  (Bytes.to_string str_65536_a, Bytes.to_string str_65536_a_rlp);
 ]
 
 let rlp_encode_string_basic_cases _ =
