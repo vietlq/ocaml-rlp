@@ -14,7 +14,11 @@ let encode_bool (b : bool) =
 let encode_char (c : char) =
   match c with
   | '\x00'..'\x7f' -> begin let b = Bytes.create 1 in Bytes.set b 0 c; b end
-  | c -> begin let b = Bytes.create 2 in Bytes.set b 0 '\x81'; Bytes.set b 1 c; b end
+  | c ->
+    begin
+      let b = Bytes.create 2 in
+      Bytes.set b 0 '\x81'; Bytes.set b 1 c; b
+    end
 
 let big_endian_bytes_of_uint num =
   let rec aux total_bytes list_bytes n =
