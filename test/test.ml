@@ -43,6 +43,11 @@ let rlp_encode_char_128_255 _ =
 
 (* Test string encoding *)
 
+let str_55_a = Bytes.make 55 'a'
+let str_55_a_rlp =
+  let prefix = Bytes.make 1 '\xb7' in
+  Bytes.cat prefix str_55_a
+
 let str_56_a = Bytes.make 56 'a'
 let str_56_a_rlp =
   let prefix = Bytes.make 2 '\xb8' in
@@ -78,6 +83,7 @@ let test_cases_string = [
   ("\xff", "\x81\xff");
   ("hello", "\x85hello");
   ("hello world", "\x8bhello world");
+  (Bytes.to_string str_55_a, Bytes.to_string str_55_a_rlp);
   (Bytes.to_string str_56_a, Bytes.to_string str_56_a_rlp);
   (Bytes.to_string str_255_a, Bytes.to_string str_255_a_rlp);
   (Bytes.to_string str_256_a, Bytes.to_string str_256_a_rlp);
